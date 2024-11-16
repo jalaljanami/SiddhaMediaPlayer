@@ -6,16 +6,22 @@
 //
 
 import SwiftUI
+import AVKit
 
 struct ContentView: View {
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        
+        ZStack {
+            BackgroundVideoPlayer()
+            
+            VStack(alignment: .leading) {
+                Text("Title")
+                    .font(.title)
+                Text("Description")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding()
     }
 }
 

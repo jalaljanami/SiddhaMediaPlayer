@@ -10,24 +10,35 @@ import AVKit
 
 struct BackgroundVideoPlayer: View {
     
-    @State private var isPlaying: Bool = true
+    @Binding var isPlaying: Bool
 
     let player = AVPlayer(url: URL(fileURLWithPath: Bundle.main.path(forResource: "Class category mobile", ofType: "mp4")!))
         var body: some View {
             LoopingVideoView(player: player)
                 .ignoresSafeArea()
                 .onAppear {
-                    player.play()
-                }
-                .onTapGesture {
                     if isPlaying {
-                        player.pause()
-                        isPlaying.toggle()
-                    } else {
                         player.play()
-                        isPlaying.toggle()
                     }
                 }
+                .onChange(of: isPlaying) { oldValue, newValue in
+                    if newValue {
+                        player.play()
+                        isPlaying = true
+                    } else {
+                        player.pause()
+                        isPlaying = false
+                    }
+                }
+//                .onTapGesture {
+//                    if isPlaying {
+//                        player.pause()
+//                        isPlaying.toggle()
+//                    } else {
+//                        player.play()
+//                        isPlaying.toggle()
+//                    }
+//                }
         }
 }
 
@@ -39,6 +50,17 @@ struct LoopingVideoView : UIViewControllerRepresentable {
         let controller = AVPlayerViewController()
         controller.player = player
         controller.showsPlaybackControls = false
+        
+        // Add observer to loop the video
+        NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: player.currentItem,
+            queue: .main
+        ) { _ in
+            player.seek(to: .zero)
+            player.play()
+        }
+        
         return controller
     }
     
@@ -48,7 +70,7 @@ struct LoopingVideoView : UIViewControllerRepresentable {
 }
 
 #Preview {
-    BackgroundVideoPlayer()
+    BackgroundVideoPlayer(isPlaying: .constant(true))
 }
 
 
